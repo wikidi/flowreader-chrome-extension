@@ -138,7 +138,7 @@ function loadOptions() {
         }
         optionsForm.find("input").trigger("change");
     });
-    $("#header").text(chrome.i18n.getMessage("FeedlyNotifierOptions"));
+    $("#header").text(chrome.i18n.getMessage("FlowReaderNotifierOptions"));
     $("#options").find("[data-locale-value]").each(function () {
         var textBox = $(this);
         var localValue = textBox.data("locale-value");

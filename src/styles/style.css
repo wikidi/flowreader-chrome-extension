@@ -184,7 +184,7 @@ body {
     min-width: 230px;
 }
 
-#feedly {
+#FlowReader {
     position: fixed;
     top: 0;
     right: 0;
@@ -196,7 +196,7 @@ body {
     background-color: white;
 }
 
-.tabs #feedly {
+.tabs #FlowReader {
     border-bottom: 1px solid #6cc655;
 }
 
@@ -208,7 +208,7 @@ body {
     display: inline;
 }
 
-#feedly img {
+#FlowReader img {
     margin-right: 5px;
 
     vertical-align: bottom;
@@ -292,7 +292,7 @@ body {
     color: #6cc655;
 }
 
-#feedly-section {
+#FlowReader-section {
     float: left;
 }
 

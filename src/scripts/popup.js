@@ -10,7 +10,7 @@ var popupGlobal = {
 
 $(document).ready(function () {
     $("#feed, #feed-saved").css("font-size", popupGlobal.backgroundPage.appGlobal.options.popupFontSize / 100 + "em");
-    $("#website").text(chrome.i18n.getMessage("FeedlyWebsite"));
+    $("#website").text(chrome.i18n.getMessage("FlowReaderWebsite"));
     $("#mark-all-read>span").text(chrome.i18n.getMessage("MarkAllAsRead"));
     $("#update-feeds>span").text(chrome.i18n.getMessage("UpdateFeeds"));
     $("#open-all-news>span").text(chrome.i18n.getMessage("OpenAllFeeds"));
@@ -83,13 +83,13 @@ $("#feed").on("click", ".mark-read", function (event) {
     markAsRead([feed.data("id")]);
 });
 
-$("#feedly").on("click", "#btn-feeds-saved", function () {
+$("#FlowReader").on("click", "#btn-feeds-saved", function () {
     $(this).addClass("active-tab");
     $("#btn-feeds").removeClass("active-tab");
     renderSavedFeeds();
 });
 
-$("#feedly").on("click", "#btn-feeds", function () {
+$("#FlowReader").on("click", "#btn-feeds", function () {
     $(this).addClass("active-tab");
     $("#btn-feeds-saved").removeClass("active-tab");
     renderFeeds();
@@ -127,7 +127,7 @@ $("#popup-content").on("click", ".show-content", function () {
 });
 
 /* Manually feeds update */
-$("#feedly").on("click", "#update-feeds", function () {
+$("#FlowReader").on("click", "#update-feeds", function () {
     if ($("#feed").is(":visible")) {
         renderFeeds(true);
     } else {
@@ -147,7 +147,7 @@ $("#popup-content").on("click", ".save-feed", function () {
 });
 
 $("#popup-content").on("click", "#website", function(){
-    popupGlobal.backgroundPage.openFeedlyTab();
+    popupGlobal.backgroundPage.openFlowReaderTab();
 });
 
 $("#popup-content").on("click", ".categories > span", function (){
@@ -162,7 +162,7 @@ $("#popup-content").on("click", ".categories > span", function (){
     }
 });
 
-$("#feedly").on("click", "#feedly-logo", function (event) {
+$("#FlowReader").on("click", "#FlowReader-logo", function (event) {
     if (event.ctrlKey) {
         popupGlobal.backgroundPage.appGlobal.options.abilitySaveFeeds = !popupGlobal.backgroundPage.appGlobal.options.abilitySaveFeeds;
         location.reload();
@@ -300,7 +300,7 @@ function showLogin() {
 function showEmptyContent() {
     $("body").children("div").hide();
     $("#popup-content").show().children("div").hide().filter("#feed-empty").text(chrome.i18n.getMessage("NoUnreadArticles")).show();
-    $("#feedly").show().find("#popup-actions").hide();
+    $("#FlowReader").show().find("#popup-actions").hide();
 }
 
 function showFeeds() {
@@ -309,7 +309,7 @@ function showFeeds() {
     }
     $("body").children("div").hide();
     $("#popup-content").show().children("div").hide().filter("#feed").show();
-    $("#feedly").show().find("#popup-actions").show().children().show();
+    $("#FlowReader").show().find("#popup-actions").show().children().show();
     $(".mark-read").attr("title", chrome.i18n.getMessage("MarkAsRead"));
     $(".show-content").attr("title", chrome.i18n.getMessage("More"));
 }
@@ -318,7 +318,7 @@ function showSavedFeeds() {
     $("body").children("div").hide();
     $("#popup-content").show().children("div").hide().filter("#feed-saved").show().find(".mark-read").hide();
     $("#feed-saved").find(".show-content").attr("title", chrome.i18n.getMessage("More"));
-    $("#feedly").show().find("#popup-actions").show().children().hide().filter(".icon-refresh").show();
+    $("#FlowReader").show().find("#popup-actions").show().children().hide().filter(".icon-refresh").show();
 }
 
 function setPopupExpand(isExpand){

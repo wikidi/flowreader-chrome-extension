@@ -1,159 +1,5 @@
 "use strict";
 
-var appGlobal = {
-    feedlyApiClient: new FeedlyApiClient(),
-    feedTab: null,
-    icons: {
-        default: "/images/icon.png",
-        inactive: "/images/icon_inactive.png",
-        defaultBig: "/images/icon128.png"
-    },
-    options: {
-        _updateInterval: 10, //minutes
-        _popupWidth: 380,
-        _expandedPopupWidth: 650,
-
-        markReadOnClick: true,
-        accessToken: "",
-        refreshToken: "",
-        showDesktopNotifications: true,
-        hideNotificationDelay: 10, //seconds
-        showFullFeedContent: false,
-        maxNotificationsCount: 5,
-        openSiteOnIconClick: false,
-        feedlyUserId: "",
-        abilitySaveFeeds: false,
-        maxNumberOfFeeds: 20,
-        forceUpdateFeeds: false,
-        useSecureConnection: true,
-        expandFeeds: false,
-        isFiltersEnabled: false,
-        openFeedsInSameTab: false,
-        openFeedsInBackground: true,
-        filters: [],
-        showCounter: true,
-        playSound: false,
-        oldestFeedsFirst: false,
-        resetCounterOnClick: false,
-        popupFontSize: 100, //percent
-        showCategories: false,
-
-        get updateInterval(){
-            var minimumInterval = 10;
-            return this._updateInterval >= minimumInterval ? this._updateInterval : minimumInterval;
-        },
-        set updateInterval(value) {
-            return this._updateInterval = value;
-        },
-        get popupWidth() {
-            var maxValue = 750;
-            var minValue = 380;
-            if (this._popupWidth > maxValue ) {
-                return maxValue;
-            }
-            if (this._popupWidth < minValue){
-                return minValue;
-            }
-            return this._popupWidth;
-        },
-        set popupWidth(value) {
-            this._popupWidth = value;
-        },
-        get expandedPopupWidth() {
-            var maxValue = 750;
-            var minValue = 380;
-            if (this._expandedPopupWidth > maxValue ) {
-                return maxValue;
-            }
-            if (this._expandedPopupWidth < minValue){
-                return minValue;
-            }
-            return this._expandedPopupWidth;
-        },
-        set expandedPopupWidth(value) {
-            this._expandedPopupWidth = value;
-        }
-    },
-    //Names of options after changes of which scheduler will be initialized
-    criticalOptionNames: ["updateInterval", "accessToken", "showFullFeedContent", "openSiteOnIconClick", "maxNumberOfFeeds", "abilitySaveFeeds", "filters", "isFiltersEnabled", "showCounter", "oldestFeedsFirst", "resetCounterOnClick"],
-    cachedFeeds: [],
-    cachedSavedFeeds: [],
-    isLoggedIn: false,
-    intervalIds: [],
-    clientId: "",
-    clientSecret: "",
-    tokenIsRefreshing: false,
-    get feedlyUrl(){
-        return this.options.useSecureConnection ? "https://feedly.com" : "http://feedly.com"
-    },
-    get savedGroup(){
-        return "user/" + this.options.feedlyUserId + "/tag/global.saved";
-    },
-    get globalGroup(){
-        return "user/" + this.options.feedlyUserId + "/category/global.all";
-    },
-    get globalUncategorized(){
-        return "user/" + this.options.feedlyUserId + "/category/global.uncategorized";
-    }
-};
-
-// #Event handlers
-chrome.runtime.onInstalled.addListener(function (details) {
-    //Trying read old options (mostly access token) if possible
-    readOptions(function () {
-        //Write all options in chrome storage and initialize application
-        writeOptions(initialize);
-    });
-});
-
-chrome.storage.onChanged.addListener(function (changes, areaName) {
-    var callback;
-
-    for (var optionName in changes) {
-        if (appGlobal.criticalOptionNames.indexOf(optionName) !== -1) {
-            callback = initialize;
-            break;
-        }
-    }
-    readOptions(callback);
-});
-
-chrome.tabs.onRemoved.addListener(function(tabId){
-    if (appGlobal.feedTab && appGlobal.feedTab.id == tabId) {
-        appGlobal.feedTab = null;
-    }
-});
-
-chrome.runtime.onStartup.addListener(function () {
-    readOptions(initialize);
-});
-
-/* Listener for adding or removing feeds on the feedly website */
-chrome.webRequest.onCompleted.addListener(function (details) {
-    if (details.method === "POST" || details.method === "DELETE") {
-        updateCounter();
-        updateFeeds();
-    }
-}, {urls: ["*://*.feedly.com/v3/subscriptions*", "*://*.feedly.com/v3/markers?*ct=feedly.desktop*"]});
-
-/* Listener for adding or removing saved feeds */
-chrome.webRequest.onCompleted.addListener(function (details) {
-    if (details.method === "PUT" || details.method === "DELETE") {
-        updateSavedFeeds();
-    }
-}, {urls: ["*://*.feedly.com/v3/tags*global.saved*"]});
-
-chrome.browserAction.onClicked.addListener(function () {
-    if (appGlobal.isLoggedIn) {
-        openFeedlyTab();
-        if(appGlobal.options.resetCounterOnClick){
-            resetCounter();
-        }
-    } else {
-        getAccessToken();
-    }
-});
-
 /* Initialization all parameters and run feeds check */
 function initialize() {
     if (appGlobal.options.openSiteOnIconClick) {
@@ -161,7 +7,7 @@ function initialize() {
     } else {
         chrome.browserAction.setPopup({popup: "popup.html"});
     }
-    appGlobal.feedlyApiClient.accessToken = appGlobal.options.accessToken;
+    appGlobal.FlowReaderApiClient.accessToken = appGlobal.options.accessToken;
 
     startSchedule(appGlobal.options.updateInterval);
 }
@@ -247,11 +93,11 @@ function openUrlInNewTab(url, active) {
     });
 }
 
-/* Opens new Feedly tab, if tab was already opened, then switches on it and reload. */
-function openFeedlyTab() {
-    chrome.tabs.query({url: appGlobal.feedlyUrl + "/*"}, function (tabs) {
+/* Opens new FlowReader tab, if tab was already opened, then switches on it and reload. */
+function openFlowReaderTab() {
+    chrome.tabs.query({url: appGlobal.FlowReaderUrl + "/*"}, function (tabs) {
         if (tabs.length < 1) {
-            chrome.tabs.create({url: appGlobal.feedlyUrl});
+            chrome.tabs.create({url: appGlobal.FlowReaderUrl});
         } else {
             chrome.tabs.update(tabs[0].id, {active: true});
             chrome.tabs.reload(tabs[0].id);
@@ -486,7 +332,7 @@ function setInactiveStatus() {
     chrome.browserAction.setBadgeText({ text: ""});
     appGlobal.cachedFeeds = [];
     appGlobal.isLoggedIn = false;
-    appGlobal.options.feedlyUserId = "";
+    appGlobal.options.FlowReaderUserId = "";
     stopSchedule();
 }
 
@@ -497,9 +343,9 @@ function setActiveStatus() {
     appGlobal.isLoggedIn = true;
 }
 
-/* Converts feedly response to feeds */
-function parseFeeds(feedlyResponse) {
-    var feeds = feedlyResponse.items.map(function (item) {
+/* Converts FlowReader response to feeds */
+function parseFeeds(FlowReaderResponse) {
+    var feeds = FlowReaderResponse.items.map(function (item) {
 
         var blogUrl;
         try {
@@ -530,7 +376,7 @@ function parseFeeds(feedlyResponse) {
         var titleDirection;
         if (item.title) {
             if (item.title.indexOf("direction:rtl") !== -1) {
-                //Feedly wraps rtl titles in div, we remove div because desktopNotification supports only text
+                //FlowReader wraps rtl titles in div, we remove div because desktopNotification supports only text
                 title = item.title.replace(/<\/?div.*?>/gi, "");
                 titleDirection = "rtl";
             } else {
@@ -552,7 +398,7 @@ function parseFeeds(feedlyResponse) {
         var blogTitleDirection;
         if (item.origin && item.origin.title) {
             if (item.origin.title.indexOf("direction:rtl") !== -1) {
-                //Feedly wraps rtl titles in div, we remove div because desktopNotification supports only text
+                //FlowReader wraps rtl titles in div, we remove div because desktopNotification supports only text
                 blog = item.origin.title.replace(/<\/?div.*?>/gi, "");
                 blogTitleDirection = "rtl";
             } else {
@@ -708,11 +554,11 @@ function toggleSavedFeed(feedId, saveFeed, callback) {
  * then read access token and stores in chrome.storage */
 function getAccessToken() {
     var state = (new Date()).getTime();
-    var url = appGlobal.feedlyApiClient.getMethodUrl("auth/auth", {
+    var url = appGlobal.FlowReaderApiClient.getMethodUrl("auth/auth", {
         response_type: "code",
         client_id: appGlobal.clientId,
         redirect_uri: "http://localhost",
-        scope: "https://cloud.feedly.com/subscriptions",
+        scope: "https://" + this.options.SiteUri + "/subscriptions",
         state: state
     }, appGlobal.options.useSecureConnection);
 
@@ -727,7 +573,7 @@ function getAccessToken() {
             var codeParse = /code=(.+?)(?:&|$)/i;
             var matches = codeParse.exec(information.url);
             if (matches) {
-                appGlobal.feedlyApiClient.request("auth/token", {
+                appGlobal.FlowReaderApiClient.request("auth/token", {
                     method: "POST",
                     useSecureConnection: appGlobal.options.useSecureConnection,
                     parameters: {
@@ -741,7 +587,7 @@ function getAccessToken() {
                         chrome.storage.sync.set({
                             accessToken: response.access_token,
                             refreshToken: response.refresh_token,
-                            feedlyUserId: response.id
+                            FlowReaderUserId: response.id
                         }, function () {
                         });
                         chrome.tabs.onUpdated.removeListener(processCode);
@@ -757,7 +603,7 @@ function getAccessToken() {
 function refreshAccessToken(){
     if(!appGlobal.options.refreshToken) return;
 
-    appGlobal.feedlyApiClient.request("auth/token", {
+    appGlobal.FlowReaderApiClient.request("auth/token", {
         method: "POST",
         useSecureConnection: appGlobal.options.useSecureConnection,
         parameters: {
@@ -769,7 +615,7 @@ function refreshAccessToken(){
         onSuccess: function (response) {
             chrome.storage.sync.set({
                 accessToken: response.access_token,
-                feedlyUserId: response.id
+                FlowReaderUserId: response.id
             }, function () {});
         },
         onComplete: function(){
@@ -833,5 +679,5 @@ function apiRequestWrapper(methodName, settings) {
         }
     };
 
-    appGlobal.feedlyApiClient.request(methodName, settings);
+    appGlobal.FlowReaderApiClient.request(methodName, settings);
 }

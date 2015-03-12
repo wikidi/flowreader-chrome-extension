@@ -28,13 +28,13 @@ module.exports = function (grunt) {
             },
             sandboxApi: {
                 files: {
-                    "<%= pkg.buildPath %>/scripts/feedly.api.js": "<%= pkg.buildPath %>/scripts/feedly.api.js"
+                    "<%= pkg.buildPath %>/scripts/FlowReader.api.js": "<%= pkg.buildPath %>/scripts/flowreader.api.js"
                 },
                 options: {
                     replacements: [
                         {
-                            pattern: /http(?:s)?:\/\/(?:www\.)?cloud\.feedly\.com/gi,
-                            replacement: "http://sandbox.feedly.com"
+                            pattern: /http(?:s)?:\/\/(?:www\.)?cloud\.FlowReader\.com/gi,
+                            replacement: "http://sandbox.FlowReader.com"
                         }
                     ]
                 }
@@ -46,8 +46,8 @@ module.exports = function (grunt) {
                 options: {
                     replacements: [
                         {
-                            pattern: /http(?:s)?:\/\/(?:www\.)?feedly\.com/gi,
-                            replacement: "http://sandbox.feedly.com"
+                            pattern: /http(?:s)?:\/\/(?:www\.)?FlowReader\.com/gi,
+                            replacement: "http://sandbox.FlowReader.com"
                         }
                     ]
                 }
@@ -57,7 +57,7 @@ module.exports = function (grunt) {
             dist: {
                 files: {
                     "<%= pkg.buildPath %>/scripts/core.js": ["<%= pkg.buildPath %>/scripts/core.js"],
-                    "<%= pkg.buildPath %>/scripts/feedly.api.js": ["<%= pkg.buildPath %>/scripts/feedly.api.js"],
+                    "<%= pkg.buildPath %>/scripts/FlowReader.api.js": ["<%= pkg.buildPath %>/scripts/flowreader.api.js"],
                     "<%= pkg.buildPath %>/scripts/options.js": ["<%= pkg.buildPath %>/scripts/options.js"],
                     "<%= pkg.buildPath %>/scripts/popup.js": ["<%= pkg.buildPath %>/scripts/popup.js"]
                 }
@@ -67,7 +67,7 @@ module.exports = function (grunt) {
             build: {
                 cwd: "<%= pkg.buildPath %>/",
                 src: ["<%= pkg.buildPath %>/**"],
-                dest: '<%= pkg.buildPath %>/feedly-notifier.zip',
+                dest: '<%= pkg.buildPath %>/FlowReader-notifier.zip',
                 compression: 'DEFLATE'
             }
         },

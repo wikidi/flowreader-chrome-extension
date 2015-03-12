@@ -24,13 +24,13 @@
         "message": "Expand all feeds when popup is opened"
     },
     "ExtensionDescription": {
-        "message": "Extension for Feedly news reader"
+        "message": "Extension for FlowReader news reader"
     },
-    "FeedlyNotifierOptions": {
-        "message": "Feedly Notifier options"
+    "FlowReaderNotifierOptions": {
+        "message": "FlowReader Notifier options"
     },
-    "FeedlyWebsite": {
-        "message": "Feedly website"
+    "FlowReaderWebsite": {
+        "message": "FlowReader website"
     },
     "Filters": {
         "message": "Filters"
@@ -93,7 +93,7 @@
         "message": "Open feeds in the same tab"
     },
     "OpenSiteOnIconClick": {
-        "message": "Open Feedly site on icon click (don't show popup)"
+        "message": "Open FlowReader site on icon click (don't show popup)"
     },
     "OptionsSaved": {
         "message": "Options have been saved"

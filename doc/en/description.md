@@ -1,4 +1,4 @@
-Feedly notifier is a tiny extension that keeps you up to date with your feedly subscriptions.
+FlowReader notifier is a tiny extension that keeps you up to date with your FlowReader subscriptions.
 
 **Features**
 
@@ -16,16 +16,16 @@ Feedly notifier is a tiny extension that keeps you up to date with your feedly s
 
 **Changelog**
 
-http://olsh.github.io/Feedly-Notifier/
+http://olsh.github.io/FlowReader-Notifier/
 
 **Support**
 
 If you found a bug or you have a suggestion, please let us know.
 You can report about it here:
-https://github.com/olsh/Feedly-Notifier-Firefox/issues
+https://github.com/olsh/FlowReader-Notifier-Firefox/issues
 
 You can help us to translate the extension (send a pull request on GitHub).
 
 **Source code**
 
-https://github.com/olsh/Feedly-Notifier
+https://github.com/olsh/FlowReader-Notifier

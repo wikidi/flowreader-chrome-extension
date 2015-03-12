@@ -1,4 +1,4 @@
-Feedly Notifier est une petite extension qui vous garde informé de vos abonnements Feedly.
+FlowReader Notifier est une petite extension qui vous garde informé de vos abonnements FlowReader.
 
 **Fonctionnalités**
 

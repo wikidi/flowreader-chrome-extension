@@ -24,13 +24,13 @@
         "message": "Espandi tutti i feed quando il popup è aperto"
     },
     "ExtensionDescription": {
-        "message": "Estensione per Feedly news reader"
+        "message": "Estensione per FlowReader news reader"
     },
-    "FeedlyNotifierOptions": {
-        "message": "Opzioni di Feedly Notifier"
+    "FlowReaderNotifierOptions": {
+        "message": "Opzioni di FlowReader Notifier"
     },
-    "FeedlyWebsite": {
-        "message": "Sito web di Feedly"
+    "FlowReaderWebsite": {
+        "message": "Sito web di FlowReader"
     },
     "Filters": {
         "message": "Filtri"
@@ -93,7 +93,7 @@
         "message": "Apri i feed nella stessa scheda"
     },
     "OpenSiteOnIconClick": {
-        "message": "Apri il sito di Feedly con un clic sull'icona (non visualizza il popup)"
+        "message": "Apri il sito di FlowReader con un clic sull'icona (non visualizza il popup)"
     },
     "OptionsSaved": {
         "message": "Le opzioni sono state salvate"
@@ -111,7 +111,7 @@
         "message": "Larghezza del popup"
     },
     "ResetCounterOnClick": {
-        "message": "Azzera il contatore quando si fa clic sul pulsante di Feedly Notifier"
+        "message": "Azzera il contatore quando si fa clic sul pulsante di FlowReader Notifier"
     },
     "Save": {
         "message": "Salva"
