@@ -12,8 +12,7 @@
         "tabs",
         "notifications",
         "webRequest",
-        "*://*.flowreader.com/",
-        "*://*.localhost"
+        "*://flow.local/"
     ],
     "optional_permissions": ["background"],
     "browser_action": {
@@ -23,7 +22,7 @@
     },
     "options_page": "options.html",
     "background": {
-        "scripts": ["scripts/flowreader.api.js", "scripts/core.js"]
+        "scripts": ["scripts/jquery.min.js", "scripts/flowreader.api.js", "scripts/core.js"]
     },
     "icons": {
         "16": "/images/icon16.png",

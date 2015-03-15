@@ -78,6 +78,20 @@ module.exports = function (grunt) {
                     {expand: true, cwd: "<%= pkg.buildPath %>", src: ["*", "!*.zip"]}
                 ]
             }
+        },
+        jshint: {
+            all: {
+                src: 'src/**/*.js'
+            }
+        },
+        watch: {
+            scripts: {
+                files: 'src/**/*.js',
+                tasks: ['newer:jshint:all'],
+                options: {
+                    spawn: false
+                }
+            }
         }
     });
 
@@ -86,6 +100,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks('grunt-zip');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-newer');
 
     grunt.registerTask("build", ["clean:pre-build", "copy", "string-replace:keys", "uglify", "zip", "clean:build"]);
     grunt.registerTask("sandbox", ["copy", "string-replace"]);
