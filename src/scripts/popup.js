@@ -60,7 +60,7 @@ $("#feed, #feed-saved").on("mousedown", "a", function (event) {
             popupGlobal.backgroundPage.appGlobal.feedTab = tab;
 
             if (popupGlobal.backgroundPage.appGlobal.options.markReadOnClick) {
-                markAsRead([link.closest(".item").data("id")]);
+                markAsRead(link.closest(".item").data("id"));
             }
         }
     }
@@ -80,7 +80,7 @@ $("#popup-content").on("click", "#open-all-news", function () {
 
 $("#feed").on("click", ".mark-read", function (event) {
     var feed = $(this).closest(".item");
-    markAsRead([feed.data("id")]);
+    markAsRead(feed.data("id"));
 });
 
 $("#FlowReader").on("click", "#btn-feeds-saved", function () {
@@ -171,7 +171,7 @@ $("#FlowReader").on("click", "#FlowReader-logo", function (event) {
 
 function renderFeeds(forceUpdate) {
     showLoader();
-    popupGlobal.backgroundPage.getFeeds(popupGlobal.backgroundPage.appGlobal.options.forceUpdateFeeds || forceUpdate, function (feeds, isLoggedIn) {
+    popupGlobal.backgroundPage.getFeeds(true, function (feeds, isLoggedIn) {
         popupGlobal.feeds = feeds;
         if (isLoggedIn === false) {
             showLogin();
@@ -235,11 +235,9 @@ function renderSavedFeeds(forceUpdate) {
     });
 }
 
-function markAsRead(feedIds) {
+function markAsRead(feedId) {
     var feedItems = $();
-    for (var i = 0; i < feedIds.length; i++) {
-        feedItems = feedItems.add(".item[data-id='" + feedIds[i] + "']");
-    }
+    feedItems = feedItems.add(".item[data-id='" + feedId+ "']");
 
     feedItems.fadeOut("fast", function(){
         $(this).remove();
@@ -251,7 +249,7 @@ function markAsRead(feedIds) {
     if ($("#feed").find(".item[data-is-read!='true']").size() === 0) {
         showLoader();
     }
-    popupGlobal.backgroundPage.markAsRead(feedIds, function () {
+    chrome.extension.getBackgroundPage().markAsRead(feedId, function () {
         if ($("#feed").find(".item[data-is-read!='true']").size() === 0) {
             renderFeeds();
         }
@@ -259,11 +257,15 @@ function markAsRead(feedIds) {
 }
 
 function markAllAsRead() {
-    var feedIds = [];
-    $(".item:visible").each(function (key, value) {
-        feedIds.push($(value).data("id"));
+    if ($("#feed").find(".item[data-is-read!='true']").size() === 0) {
+        showLoader();
+    }
+
+    chrome.extension.getBackgroundPage().markAllAsRead(function () {
+        if ($("#feed").find(".item[data-is-read!='true']").size() === 0) {
+            renderFeeds();
+        }
     });
-    markAsRead(feedIds);
 }
 
 function renderCategories(container, feeds){

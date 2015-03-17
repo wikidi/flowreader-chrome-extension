@@ -52,22 +52,16 @@ var FlowReaderApiClient = function (accessToken) {
             },
             success: function (e) {
                 if (e.exitCode == 3000) {
-                    console.log('Not logged in');
                     if (typeof settings.onAuthorizationRequired === "function") {
-                        settings.onAuthorizationRequired(settings.accessToken);
+                        settings.onAuthorizationRequired();
                     }
                     return;
                 }
                 if (typeof settings.onSuccess === "function"){
-                    console.log(e);
                     settings.onSuccess(e);
                 }
             }
 
         });
-
-        console.log(url);
-        console.log(verb);
-        console.log(body);
     };
 };
