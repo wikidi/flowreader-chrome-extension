@@ -18,7 +18,7 @@ body {
     color: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 3px;
-    background-color: #6cc655;
+    background-color: #c2300c;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 0 1px rgba(255, 255, 255, 1);
 
     font-size: 14px;
@@ -106,7 +106,7 @@ body {
     margin-top: 2px;
     padding: 5px;
 
-    border: 1px solid #6cc655;
+    border: 1px solid #c2300c;
     border-radius: 3px;
     background-color: white;
 
@@ -116,7 +116,7 @@ body {
 .content a:link {
     text-decoration: none;
 
-    color: #6cc655;
+    color: #c2300c;
 }
 
 .content a:hover {
@@ -197,7 +197,7 @@ body {
 }
 
 .tabs #FlowReader {
-    border-bottom: 1px solid #6cc655;
+    border-bottom: 1px solid #c2300c;
 }
 
 #tabs-container {
@@ -239,7 +239,7 @@ body {
     height: 0;
 
     border-right: 4px solid transparent;
-    border-bottom: 4px solid #6cc655;
+    border-bottom: 4px solid #c2300c;
     border-left: 4px solid transparent;
 }
 
@@ -262,7 +262,7 @@ body {
 
     cursor: pointer;
 
-    border: 1px solid #6cc655;
+    border: 1px solid #c2300c;
     border-radius: 3px;
 }
 
@@ -281,7 +281,7 @@ body {
 
     text-align: right;
 
-    border-top: 1px solid #6cc655;
+    border-top: 1px solid #c2300c;
 }
 
 #popup-actions > i:hover > div {
@@ -289,7 +289,7 @@ body {
 }
 
 #website:hover {
-    color: #6cc655;
+    color: #c2300c;
 }
 
 #FlowReader-section {
@@ -312,7 +312,7 @@ body {
 }
 
 #popup-actions span:hover {
-    color: #6cc655;
+    color: #c2300c;
 }
 
 .title {
@@ -382,7 +382,7 @@ body {
 
 .active-tab {
     color: white;
-    background-color: #6cc655;
+    background-color: #c2300c;
 }
 
 .blog-icon {
@@ -410,5 +410,5 @@ body {
 .categories > span.active {
     color: #ffffff;
     border-radius: 4px;
-    background-color: #6aba45;
+    background-color: #c2300c;
 }
