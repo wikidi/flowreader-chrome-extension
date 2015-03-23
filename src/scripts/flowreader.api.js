@@ -4,9 +4,8 @@ var FlowReaderApiClient = function (accessToken) {
 
     this.accessToken = accessToken;
 
-    var apiUrl =  "http://flow.local/api/";
-    var secureApiUrl = "https://flow.local/api/";
-    var extensionVersion = chrome.runtime.getManifest().version;
+    var apiUrl =  "http://flowreader.com/api/";
+    var secureApiUrl = "https://flowreader.com/api/";
 
     this.getMethodUrl = function (methodName, parameters, useSecureConnection) {
         if (methodName === undefined) {

@@ -268,26 +268,6 @@ function markAllAsRead() {
     });
 }
 
-function renderCategories(container, feeds){
-    $(".categories").remove();
-    var categories = getUniqueCategories(feeds);
-    container.append($("#categories-template").mustache({categories: categories}));
-}
-
-function getUniqueCategories(feeds){
-    var categories = [];
-    var addedIds = [];
-    feeds.forEach(function(feed){
-        feed.categories.forEach(function (category) {
-            if (addedIds.indexOf(category.id) === -1) {
-                categories.push(category);
-                addedIds.push(category.id);
-            }
-        });
-    });
-    return categories;
-}
-
 function showLoader() {
     $("body").children("div").hide();
     $("#loading").show();

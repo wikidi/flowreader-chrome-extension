@@ -14,22 +14,17 @@ window.appGlobal = {
         _expandedPopupWidth: 650,
 
         markReadOnClick: true,
-        accessToken: "",
-        refreshToken: "",
         showDesktopNotifications: true,
-        hideNotificationDelay: 10, //seconds
-        showFullFeedContent: false,
+        hideNotificationDelay: 10,
         maxNotificationsCount: 5,
         openSiteOnIconClick: false,
-        FlowReaderUserId: "",
-        SiteUri: "flow.local",
+        SiteUri: "flowreader.com",
         abilitySaveFeeds: true,
         maxNumberOfFeeds: 20,
         forceUpdateFeeds: false,
         useSecureConnection: false,
         timeoutMillis: 7000,
         expandFeeds: false,
-        openFeedsInSameTab: false,
         openFeedsInBackground: true,
         showCounter: true,
         playSound: false,
@@ -73,7 +68,7 @@ window.appGlobal = {
         }
     },
     //Names of options after changes of which scheduler will be initialized
-    criticalOptionNames: ["updateInterval", "accessToken", "showFullFeedContent", "openSiteOnIconClick", "maxNumberOfFeeds", "abilitySaveFeeds", "showCounter", "oldestFeedsFirst", "resetCounterOnClick"],
+    criticalOptionNames: ["updateInterval", "accessToken", "openSiteOnIconClick", "maxNumberOfFeeds", "abilitySaveFeeds", "showCounter", "oldestFeedsFirst", "resetCounterOnClick"],
     cachedFeeds: [],
     cachedSavedFeeds: [],
     isLoggedIn: false,
@@ -82,12 +77,12 @@ window.appGlobal = {
     clientSecret: "",
     tokenIsRefreshing: false,
     get flowReaderUrl() {
-        return appGlobal.options.useSecureConnection ? "https://flow.local" : "http://flow.local" //TODO: move to flowreader.com
+        return (appGlobal.options.useSecureConnection ? "https://" : "http://") + appGlobal.options.SiteUri;
     }
 };
 
 // #Event handlers
-chrome.runtime.onInstalled.addListener(function (details) {
+chrome.runtime.onInstalled.addListener(function () {
     //Trying read old options (mostly access token) if possible
     readOptions(function () {
         //Write all options in chrome storage and initialize application
@@ -95,7 +90,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
     });
 });
 
-chrome.storage.onChanged.addListener(function (changes, areaName) {
+chrome.storage.onChanged.addListener(function (changes) {
     var callback;
 
     for (var optionName in changes) {
@@ -118,12 +113,11 @@ chrome.runtime.onStartup.addListener(function () {
 });
 
 /* Listener for adding or removing feeds on the FlowReader website */
-chrome.webRequest.onCompleted.addListener(function (details) {
+chrome.webRequest.onBeforeRequest.addListener(function (details) {
     if (details.method === "POST") {
-        //updateCounter(); TODO: Replace with removing from cache for perfomance
-        //updateFeeds(); TODO: Replace with removing from cache for perfomance
-    } // replace with out api
-}, {urls: ["*://flow.local/api/items/read"]}); //TODO: Replace with flowreader.com
+        updateCounter();
+    }
+}, {urls: ["*://" + appGlobal.options.SiteUri + "/api/items/read"]});
 
 chrome.browserAction.onClicked.addListener(function () {
     if (appGlobal.isLoggedIn) {
@@ -194,7 +188,7 @@ function sendDesktopNotification(feeds) {
                 target.close();
                 openUrlInNewTab(target.url, true);
                 if (appGlobal.options.markReadOnClick) {
-                    markAsRead([target.feedId]);
+                    markAsRead(target.feedId);
                 }
             };
             notifications.push(notification);
@@ -218,7 +212,7 @@ function sendDesktopNotification(feeds) {
 function openUrlInNewTab(url, active) {
     chrome.windows.getAll({}, function (windows) {
         if (windows.length < 1) {
-            chrome.windows.create({focused: true}, function (window) {
+            chrome.windows.create({focused: true}, function () {
                 chrome.tabs.create({url: url, active: active }, function (feedTab) {
                 });
             });
@@ -459,8 +453,6 @@ function setInactiveStatus() {
     chrome.browserAction.setBadgeText({ text: ""});
     appGlobal.cachedFeeds = [];
     appGlobal.isLoggedIn = false;
-    appGlobal.options.FlowReaderUserId = "";
-    stopSchedule();
 }
 
 /* Sets badge as active */
@@ -472,7 +464,7 @@ function setActiveStatus() {
 
 /* Converts FlowReader response to feeds */
 function parseFeeds(response) {
-    var feeds = response.data.map(function (item) {
+    return response.data.map(function (item) {
         return {
             title: item.contentData.body.title,
             url: item.contentData.link,
@@ -486,7 +478,6 @@ function parseFeeds(response) {
             isSaved: item.metaData.favorite
         };
     });
-    return feeds;
 }
 
 /* Returns feeds from the cache.
@@ -533,7 +524,7 @@ function markAsRead(id, callback) {
             ],
             read: true
         },
-        onSuccess: function (result) {
+        onSuccess: function () {
             removeFeedFromCache(id);
             chrome.browserAction.getBadgeText({}, function (feedsCount) {
                 if (feedsCount > 0) {
@@ -577,7 +568,7 @@ function markAllAsRead(callback) {
  * function(boolean isLoggedIn) {...};*/
 function toggleSavedFeed(id, saveFeed, callback) {
     apiRequestWrapper("items/favorite/" + id, {
-        onSuccess: function (response) {
+        onSuccess: function () {
             if (typeof callback === "function") {
                 callback(true);
             }
@@ -634,11 +625,13 @@ function apiRequestWrapper(methodName, settings) {
     settings.onSuccess = function (response) {
         setActiveStatus();
         if (typeof onSuccess === "function") {
+            setActiveStatus();
             onSuccess(response);
         }
     };
 
-    settings.onAuthorizationRequired = function (accessToken) {
+    settings.onAuthorizationRequired = function () {
+        setInactiveStatus();
         openFlowReaderTab();
     };
 

@@ -12,7 +12,7 @@
         "tabs",
         "notifications",
         "webRequest",
-        "*://flow.local/"
+        "*://flowreader.com/"
     ],
     "optional_permissions": ["background"],
     "browser_action": {

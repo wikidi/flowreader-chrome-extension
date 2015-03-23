@@ -8,8 +8,6 @@ var optionsGlobal = {
 
 $(document).ready(function () {
     loadOptions();
-    loadUserCategories();
-    loadProfileData();
 });
 
 $("body").on("click", "#save", function (e) {
@@ -27,7 +25,7 @@ $("body").on("click", "#logout", function () {
     $("#userInfo, #filters-settings").hide();
 });
 
-$("#options").on("change", "input", function (e) {
+$("#options").on("change", "input", function () {
     $("[data-disable-parent]").each(function(key, value){
         var child = $(value);
         var parent = $("input[data-option-name='" + child.data("disable-parent") + "']");
@@ -40,62 +38,6 @@ $("#options").on("change", "input", function (e) {
         !parent.is(":checked") ? child.attr("disabled", "disable") : child.removeAttr("disabled");
     });
 });
-
-function loadProfileData() {
-    chrome.extension.getBackgroundPage().apiRequestWrapper("profile", {
-        useSecureConnection: chrome.extension.getBackgroundPage().appGlobal.options.useSecureConnection,
-        onSuccess: function (result) {
-            var userInfo = $("#userInfo");
-            userInfo.find("[data-locale-value]").each(function () {
-                var textBox = $(this);
-                var localValue = textBox.data("locale-value");
-                textBox.text(chrome.i18n.getMessage(localValue));
-            });
-            userInfo.show();
-            for (var profileData in result) {
-                userInfo.find("span[data-value-name='" + profileData + "']").text(result[profileData]);
-            }
-        },
-        onAuthorizationRequired: function () {
-            $("#userInfo, #filters-settings").hide();
-        }
-    });
-}
-
-function loadUserCategories(){
-    chrome.extension.getBackgroundPage().apiRequestWrapper("categories", {
-        onSuccess: function (result) {
-            result.forEach(function(element){
-                appendCategory(element.id, element.label);
-            });
-            appendCategory(chrome.extension.getBackgroundPage().appGlobal.globalUncategorized, "Uncategorized");
-            chrome.storage.sync.get("filters", function(items){
-                var filters = items.filters || [];
-                filters.forEach(function(id){
-                    $("#categories").find("input[data-id='" + id +"']").attr("checked", "checked");
-                });
-            });
-        }
-    });
-}
-
-function appendCategory(id, label){
-    var categories = $("#categories");
-    var label = $("<label for='" + id + "' class='label' />").text(label);
-    var checkbox = $("<input id='" + id + "' type='checkbox' />").attr("data-id", id);
-    categories.append(label);
-    categories.append(checkbox);
-    categories.append("<br/>");
-}
-
-function parseFilters() {
-    var filters = [];
-    $("#categories").find("input[type='checkbox']:checked").each(function (key, value) {
-        var checkbox = $(value);
-        filters.push(checkbox.data("id"));
-    });
-    return filters;
-}
 
 /* Save all option in the chrome storage */
 function saveOptions() {
@@ -112,7 +54,6 @@ function saveOptions() {
         }
         options[optionControl.data("option-name")] = optionValue;
     });
-    options.filters = parseFilters();
 
     setBackgroundMode($("#enable-background-mode").is(":checked"));
 
