@@ -72,10 +72,9 @@ window.appGlobal = {
     cachedFeeds: [],
     cachedSavedFeeds: [],
     isLoggedIn: false,
+    dataChanged: false,
+    savedDataChanged: false,
     intervalIds: [],
-    clientId: "",
-    clientSecret: "",
-    tokenIsRefreshing: false,
     get flowReaderUrl() {
         return (appGlobal.options.useSecureConnection ? "https://" : "http://") + appGlobal.options.SiteUri;
     }
@@ -115,9 +114,17 @@ chrome.runtime.onStartup.addListener(function () {
 /* Listener for adding or removing feeds on the FlowReader website */
 chrome.webRequest.onBeforeRequest.addListener(function (details) {
     if (details.method === "POST") {
-        updateCounter();
+        appGlobal.dataChanged = true;
+        // We will not update counter and data for perfomance. Instead of it we will force update data on popup opening
     }
 }, {urls: ["*://" + appGlobal.options.SiteUri + "/api/items/read"]});
+
+chrome.webRequest.onBeforeRequest.addListener(function (details) {
+    if (details.method === "GET") {
+        appGlobal.savedDataChanged = true;
+        // We will not update data for perfomance. Instead of it we will force update data on saved feeds opening
+    }
+}, {urls: ["*://" + appGlobal.options.SiteUri + "/api/items/favorite/*"]});
 
 chrome.browserAction.onClicked.addListener(function () {
     if (appGlobal.isLoggedIn) {
@@ -126,7 +133,7 @@ chrome.browserAction.onClicked.addListener(function () {
             resetCounter();
         }
     } else {
-        getAccessToken();
+        onAuthorizationRequired();
     }
 });
 
@@ -364,9 +371,35 @@ function updateSavedFeeds(callback) {
             ]
         },
         onSuccess: function (response) {
-            appGlobal.cachedSavedFeeds = parseFeeds(response);
+            if (response.exitCode != 1) {
+                if (response.exitCode == 404) {
+                    appGlobal.cachedSavedFeeds = [];
+                }
+                return;
+            }
+
+            appGlobal.cachedSavedFeeds = appGlobal.cachedSavedFeeds.concat(parseFeeds(response));
+            // Remove duplicates
+            appGlobal.cachedSavedFeeds = appGlobal.cachedSavedFeeds.filter(function(value, index, feeds){
+                for(var i = ++index; i < feeds.length; i++){
+                    if(feeds[i].id == value.id){
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            appGlobal.cachedSavedFeeds = appGlobal.cachedSavedFeeds.sort(function (a, b) {
+                if (a.unixTime > b.unixTime) {
+                    return appGlobal.options.oldestFeedsFirst ? 1 : -1;
+                } else if (a.unixTime < b.unixTime) {
+                    return appGlobal.options.oldestFeedsFirst ? -1 : 1;
+                }
+                return 0;
+            });
+
             if (typeof callback === "function") {
-                callback();
+                callback(true);
             }
         }
     });
@@ -485,13 +518,15 @@ function parseFeeds(response) {
  * forceUpdate, when is true, then cache will be updated
  */
 function getFeeds(forceUpdate, callback) {
-    if (appGlobal.cachedFeeds.length > 0 && !forceUpdate) {
-        callback(appGlobal.cachedFeeds.slice(0), appGlobal.isLoggedIn);
-    } else {
+    var update = forceUpdate || appGlobal.dataChanged || appGlobal.options.forceUpdateFeeds;
+    if (update) {
+        appGlobal.dataChanged = false;
         updateFeeds(function () {
             callback(appGlobal.cachedFeeds.slice(0), appGlobal.isLoggedIn);
         }, true);
         updateCounter();
+    } else {
+        callback(appGlobal.cachedFeeds.slice(0), appGlobal.isLoggedIn);
     }
 }
 
@@ -500,12 +535,14 @@ function getFeeds(forceUpdate, callback) {
  * forceUpdate, when is true, then cache will be updated
  */
 function getSavedFeeds(forceUpdate, callback) {
-    if (appGlobal.cachedSavedFeeds.length > 0 && !forceUpdate) {
-        callback(appGlobal.cachedSavedFeeds.slice(0), appGlobal.isLoggedIn);
-    } else {
+    var update = forceUpdate || appGlobal.savedDataChanged || appGlobal.options.forceUpdateFeeds;
+    if (update) {
+        appGlobal.savedDataChanged = false;
         updateSavedFeeds(function () {
             callback(appGlobal.cachedSavedFeeds.slice(0), appGlobal.isLoggedIn);
         }, true);
+    } else {
+        callback(appGlobal.cachedSavedFeeds.slice(0), appGlobal.isLoggedIn);
     }
 }
 
@@ -620,19 +657,24 @@ function readOptions(callback) {
     });
 }
 
+function onAuthorizationRequired() {
+    setInactiveStatus();
+    openFlowReaderTab();
+}
+
 function apiRequestWrapper(methodName, settings) {
+    console.log(settings);
     var onSuccess = settings.onSuccess;
     settings.onSuccess = function (response) {
+        console.log(response);
         setActiveStatus();
         if (typeof onSuccess === "function") {
-            setActiveStatus();
             onSuccess(response);
         }
     };
 
     settings.onAuthorizationRequired = function () {
-        setInactiveStatus();
-        openFlowReaderTab();
+        onAuthorizationRequired();
     };
 
     appGlobal.FlowReaderApiClient.request(methodName, settings);

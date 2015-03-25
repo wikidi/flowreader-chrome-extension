@@ -5,6 +5,9 @@ var popupGlobal = {
     supportedTimeAgoLocales: ["ru", "fr", "pt-BR", "it", "cs"],
     feeds: [],
     savedFeeds: [],
+    /**
+     * core.js
+     */
     backgroundPage: chrome.extension.getBackgroundPage()
 };
 
@@ -30,10 +33,6 @@ $(document).ready(function () {
     } else {
         renderFeeds();
     }
-});
-
-$("#login").click(function () {
-    popupGlobal.backgroundPage.getAccessToken();
 });
 
 //using "mousedown" instead of "click" event to process middle button click.
@@ -86,13 +85,13 @@ $("#feed").on("click", ".mark-read", function (event) {
 $("#FlowReader").on("click", "#btn-feeds-saved", function () {
     $(this).addClass("active-tab");
     $("#btn-feeds").removeClass("active-tab");
-    renderSavedFeeds();
+    renderSavedFeeds(false);
 });
 
 $("#FlowReader").on("click", "#btn-feeds", function () {
     $(this).addClass("active-tab");
     $("#btn-feeds-saved").removeClass("active-tab");
-    renderFeeds();
+    renderFeeds(false);
 });
 
 $("#popup-content").on("click", ".show-content", function () {
@@ -150,18 +149,6 @@ $("#popup-content").on("click", "#website", function(){
     popupGlobal.backgroundPage.openFlowReaderTab();
 });
 
-$("#popup-content").on("click", ".categories > span", function (){
-    $(".categories").find("span").removeClass("active");
-    var button = $(this).addClass("active");
-    var categoryId = button.data("id");
-    if (categoryId) {
-        $(".item").hide();
-        $(".item[data-categories~='" + categoryId + "']").show();
-    } else {
-        $(".item").show();
-    }
-});
-
 $("#FlowReader").on("click", "#FlowReader-logo", function (event) {
     if (event.ctrlKey) {
         popupGlobal.backgroundPage.appGlobal.options.abilitySaveFeeds = !popupGlobal.backgroundPage.appGlobal.options.abilitySaveFeeds;
@@ -171,19 +158,15 @@ $("#FlowReader").on("click", "#FlowReader-logo", function (event) {
 
 function renderFeeds(forceUpdate) {
     showLoader();
-    popupGlobal.backgroundPage.getFeeds(true, function (feeds, isLoggedIn) {
+    popupGlobal.backgroundPage.getFeeds(forceUpdate, function (feeds, isLoggedIn) {
         popupGlobal.feeds = feeds;
         if (isLoggedIn === false) {
-            showLogin();
+            popupGlobal.backgroundPage.onAuthorizationRequired();
         } else {
             if (feeds.length === 0) {
                 showEmptyContent();
             } else {
                 var container = $("#feed").show().empty();
-
-                if (popupGlobal.backgroundPage.appGlobal.options.showCategories) {
-                    renderCategories(container, feeds);
-                }
 
                 if (popupGlobal.backgroundPage.appGlobal.options.expandFeeds) {
                     var partials = { content: $("#feed-content").html() };
@@ -204,10 +187,10 @@ function renderFeeds(forceUpdate) {
 
 function renderSavedFeeds(forceUpdate) {
     showLoader();
-    popupGlobal.backgroundPage.getSavedFeeds(popupGlobal.backgroundPage.appGlobal.options.forceUpdateFeeds || forceUpdate, function (feeds, isLoggedIn) {
+    popupGlobal.backgroundPage.getSavedFeeds(forceUpdate, function (feeds, isLoggedIn) {
         popupGlobal.savedFeeds = feeds;
         if (isLoggedIn === false) {
-            showLogin();
+            popupGlobal.backgroundPage.onAuthorizationRequired();
         } else {
             if (feeds.length === 0) {
                 showEmptyContent();
@@ -216,10 +199,6 @@ function renderSavedFeeds(forceUpdate) {
 
                 if (popupGlobal.backgroundPage.appGlobal.options.expandFeeds) {
                     var partials = { content: $("#feed-content").html() };
-                }
-
-                if (popupGlobal.backgroundPage.appGlobal.options.showCategories) {
-                    renderCategories(container, feeds);
                 }
 
                 container.append($("#feedTemplate").mustache({feeds: feeds}, partials));
@@ -257,26 +236,18 @@ function markAsRead(feedId) {
 }
 
 function markAllAsRead() {
-    if ($("#feed").find(".item[data-is-read!='true']").size() === 0) {
-        showLoader();
-    }
-
+    var feedItems = $();
+    feedItems.fadeOut("fast", function(){
+        $(this).remove();
+    });
     chrome.extension.getBackgroundPage().markAllAsRead(function () {
-        if ($("#feed").find(".item[data-is-read!='true']").size() === 0) {
-            renderFeeds();
-        }
+        renderFeeds();
     });
 }
 
 function showLoader() {
     $("body").children("div").hide();
     $("#loading").show();
-}
-
-function showLogin() {
-    $("body").children("div").hide();
-    $("#login-btn").text(chrome.i18n.getMessage("Login"));
-    $("#login").show();
 }
 
 function showEmptyContent() {
@@ -291,7 +262,7 @@ function showFeeds() {
     }
     $("body").children("div").hide();
     $("#popup-content").show().children("div").hide().filter("#feed").show();
-    $("#FlowReader").show().find("#popup-actions").show().children().show();
+    $("#FlowReader").show().find("#popup-actions").show()   .children().show();
     $(".mark-read").attr("title", chrome.i18n.getMessage("MarkAsRead"));
     $(".show-content").attr("title", chrome.i18n.getMessage("More"));
 }

@@ -27,10 +27,6 @@ var FlowReaderApiClient = function (accessToken) {
         var url = this.getMethodUrl(methodName, settings.parameters, settings.useSecureConnection);
         var verb = settings.verb || "GET";
 
-        if (this.accessToken) {
-            url += ((/\?/).test(url) ? "&" : "?") + "accessToken=" + this.accessToken;
-        }
-
         var body;
         if (settings.body) {
             body = JSON.stringify(settings.body);
