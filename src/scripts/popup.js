@@ -262,7 +262,7 @@ function showFeeds() {
     }
     $("body").children("div").hide();
     $("#popup-content").show().children("div").hide().filter("#feed").show();
-    $("#FlowReader").show().find("#popup-actions").show()   .children().show();
+    $("#FlowReader").show().find("#popup-actions").show().children().show();
     $(".mark-read").attr("title", chrome.i18n.getMessage("MarkAsRead"));
     $(".show-content").attr("title", chrome.i18n.getMessage("More"));
 }

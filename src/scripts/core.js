@@ -272,7 +272,7 @@ function filterByNewFeeds(feeds, callback) {
         var lastFeedTime;
 
         if (options.lastFeedTime) {
-            lastFeedTime = Math.round((new Date()).getTime() / 1000);
+            lastFeedTime = options.lastFeedTime;
         } else {
             lastFeedTime = 0;
         }
@@ -298,7 +298,7 @@ function filterByNewFeeds(feeds, callback) {
 
 function resetCounter(){
     setBadgeCounter(0);
-    chrome.storage.local.set({ lastCounterResetTime: new Date().getTime() });
+    chrome.storage.local.set({ lastCounterResetTime: Math.round((new Date()).getTime() / 1000) });
 }
 
 function setBadgeCounter(unreadFeedsCount) {
@@ -591,6 +591,9 @@ function markAllAsRead(callback) {
             ]
         },
         onSuccess: function() {
+            resetCounter();
+            appGlobal.cachedFeeds = [];
+
             if (typeof callback === "function") {
                 callback(true);
             }
