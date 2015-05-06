@@ -1,6 +1,13 @@
-FlowReader-Notifier
-===============
+# flowreader-chrome-extension
+Google Chrome extension for reading news from rss and Twitter aggregator FlowReader.com
 
-**Description**
+It's a fork from https://github.com/olsh/Feedly-Notifier
 
-Google chrome extension for reading news from rss aggregator [FlowReader](http://www.flowreader.com)
+# authors
+
+Oleg Shevchenko (original version)
+
+
+Sučkou Arťom
+
+Roman Ožana
